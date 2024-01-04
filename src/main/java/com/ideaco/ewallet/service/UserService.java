@@ -2,6 +2,7 @@ package com.ideaco.ewallet.service;
 
 import com.ideaco.ewallet.dto.EditEmailDTO;
 import com.ideaco.ewallet.dto.EditProfilePictureDTO;
+import com.ideaco.ewallet.dto.ShowUserBalanceDTO;
 import com.ideaco.ewallet.exception.UserNotFoundException;
 import com.ideaco.ewallet.model.UserModel;
 import com.ideaco.ewallet.repository.UserRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -40,17 +42,22 @@ public class UserService {
         return editEmailDTO;
     }
 
-    public EditProfilePictureDTO editUserProfilePicture(int userId, MultipartFile newUserPicture) throws UserNotFoundException {
+    public EditProfilePictureDTO editUserProfilePicture(int userId, MultipartFile newUserPicture) throws UserNotFoundException, IOException {
         Optional<UserModel> data = userRepository.findById(userId);
         if (data.isEmpty()) {
             throw new UserNotFoundException("User not found");
         }
 
-        UserModel userModel = data.get();
-        String picture = fileService.saveFile(newUserPicture);
-        userModel.setUserPicture(picture);
-        userRepository.save(userModel);
-        return convertEditProfilePictureDTO(userModel);
+        try {
+            UserModel userModel = data.get();
+            String picture = fileService.saveFile(newUserPicture);
+            userModel.setUserPicture(picture);
+            userRepository.save(userModel);
+            return convertEditProfilePictureDTO(userModel);
+        } catch (IOException e) {
+            throw new IOException();
+        }
+
     }
 
     public EditProfilePictureDTO convertEditProfilePictureDTO(UserModel userModel) {
@@ -59,4 +66,7 @@ public class UserService {
         editProfilePictureDTO.setUserPicture(userModel.getUserPicture());
        return editProfilePictureDTO;
     }
+
+
+
 }

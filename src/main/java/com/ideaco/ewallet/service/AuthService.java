@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -62,8 +63,12 @@ public class AuthService {
         newUser.setUserEmail(userEmail);
         newUser.setUserPassword(userPassword);
 
-        String picture = fileService.saveFile(userPicture);
-        newUser.setUserPicture(picture);
+        try {
+            String picture = fileService.saveFile(userPicture);
+            newUser.setUserPicture(picture);
+        } catch(IOException e) {
+            newUser.setUserPicture("");
+        }
 
         UserModel userModel = userRepository.save(newUser);
 

@@ -1,5 +1,6 @@
 package com.ideaco.ewallet.model;
 
+import com.ideaco.ewallet.dto.ShowUserBalanceDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Entity
 @Table(name = "tab_balance")
-public class BalanceModel {
+public class BalanceModel extends ShowUserBalanceDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "balance_id")

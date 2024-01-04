@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/v1/user")
 public class UserController {
@@ -35,6 +37,10 @@ public class UserController {
             editProfileResponse.setSuccess(false);
             editProfileResponse.setMessage("Failed to change profile picture");
             editProfileResponse.setErrorCode("400");
+        } catch (IOException e) {
+            editProfileResponse.setSuccess(false);
+            editProfileResponse.setMessage("Failed to upload File");
+            editProfileResponse.setErrorCode("401");
         }
         return ResponseEntity.badRequest().body(editProfileResponse);
 

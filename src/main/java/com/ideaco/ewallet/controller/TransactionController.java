@@ -1,16 +1,18 @@
 package com.ideaco.ewallet.controller;
 
+import com.ideaco.ewallet.dto.ShowUserBalanceDTO;
 import com.ideaco.ewallet.dto.TransferDTO;
 import com.ideaco.ewallet.exception.BalanceNotAvailableException;
 import com.ideaco.ewallet.exception.UserNotFoundException;
+import com.ideaco.ewallet.model.BalanceModel;
 import com.ideaco.ewallet.response.TransferResponse;
+import com.ideaco.ewallet.response.UserBalanceResponse;
+import com.ideaco.ewallet.service.BalanceService;
 import com.ideaco.ewallet.service.TransactionService;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/transaction")
@@ -18,6 +20,29 @@ public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
+
+    @Autowired
+    private BalanceService balanceService;
+
+    // check saldo
+    @GetMapping("/{userId}/showBalance")
+    public ResponseEntity<UserBalanceResponse> showUserBalance(@PathVariable int userId) {
+        UserBalanceResponse userBalanceResponse = new UserBalanceResponse();
+        try {
+            ShowUserBalanceDTO showUserBalanceDTO = balanceService.showUserBalance(userId);
+            userBalanceResponse.setSuccess(true);
+            userBalanceResponse.setMessage("Data Fetched");
+            userBalanceResponse.setErrorCode("201");
+            userBalanceResponse.setData(showUserBalanceDTO);
+            return ResponseEntity.ok().body(userBalanceResponse);
+        } catch (BalanceNotAvailableException e) {
+            userBalanceResponse.setSuccess(false);
+            userBalanceResponse.setMessage("Balance not available/not enough balance");
+            userBalanceResponse.setErrorCode("101"); // receiver account not found
+
+            return ResponseEntity.badRequest().body(userBalanceResponse);
+        }
+    }
 
     @PostMapping("/transfer")
     public ResponseEntity<TransferResponse> transfer(@RequestParam("user_id") int userId,
